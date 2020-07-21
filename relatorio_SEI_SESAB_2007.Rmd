@@ -1,0 +1,160 @@
+---
+title: "Boletim COVID-19 - Bahia"
+author: ''
+date: "20/07/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+theme: paper
+---
+<STYLE TYPE="text/css">
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+</STYLE>
+##### **Secretaria de Saúde da Bahia** #####
+##### **Superintendência de Estudos Econômicos e Sociais da Bahia** #####
+##### **Governo da Bahia** #####
+```{r echo=FALSE, setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+options(knitr.kable.NA = '')
+
+# PREPARAR LIBRARIES + ABRIR OS BANCOS
+#library(tidyquant)
+library(lubridate)
+library(dplyr)
+library(tidyverse)
+library(RColorBrewer)
+library(ggplot2)
+library(tidyr) 
+library(scales)
+library(ggthemes) 
+library(magrittr)
+library(ggiraph)
+
+#LER OS BANCOS E AJUSTAR DATAS
+
+source("./R/ETL_microdados.R")
+
+# Definindo datas importantes
+
+data_boletim <- as_date("2020-07-20")
+data_lim <- data_boletim - 3
+
+```
+
+##  **1 - Séries históricas do COVID-19 na Bahia**
+
+<br>
+<br>
+
+**Figura 1.** Casos novos de COVID-19, por data de início de sintoma (média móvel de 7 dias), Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# retirando a data NA
+serie_casos_BA %<>% filter(not(is.na(DATA_REF)))
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_2 <- 
+  ggplot() +
+  geom_col(
+    data=serie_casos_BA,
+    aes(
+      y=casos_novos,
+      x=DATA_REF
+    ),
+    fill = "#ffa600",
+    color = "#a16902"
+  )  +
+  scale_x_date(
+    limits=c(as_date("2020-03-06"), data_boletim)
+  ) +
+  geom_line_interactive(
+    data=serie_casos_BA,
+    aes(
+      y=mm_7d_direita,
+      x=DATA_REF
+    ),
+    linetype='solid',
+    size=1,
+    color = "#801313"
+  ) +
+  xlab("Data do início do sintoma") +
+  ylab("Casos confirmados") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+plot(graf_2)
+
+```
+
+**Figura 2.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_3 <- 
+ggplot() +
+  geom_col(
+    data=serie_obitos_BA,
+    aes(
+      y=obitos,
+      x=DATA_OBITO,
+      fill = "Obitos",
+       
+    ),
+    color = "#b30000",
+    fill = "#ff8080"
+  )  +
+  scale_x_date(
+    limits=c(as_date("2020-03-06"), data_boletim)
+  ) +
+  geom_line_interactive(
+    data=serie_obitos_BA,
+    aes(
+      y=mm_7d_direita,
+      x=DATA_OBITO
+    ),
+    linetype='solid',
+    size=1,
+    color = "#400461"
+  ) +
+  xlab("Data do Óbito") +
+  ylab("Número de Óbitos") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(
+    name="",
+    values=c(
+      "Obitos" =  "#ff8080",
+      "Media" = "#400461"
+    ) 
+  ) +
+  scale_colour_manual(
+    name="",
+    values=c(
+      "Obitos" =  "#ff8080",
+      "Media" = "#400461"
+    ) 
+  )
+
+plot(graf_3)
+
+```
