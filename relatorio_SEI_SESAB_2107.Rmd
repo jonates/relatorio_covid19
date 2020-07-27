@@ -1,0 +1,293 @@
+---
+title: "Boletim COVID-19 - Bahia"
+author: ''
+date: "21/07/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+theme: paper
+---
+<STYLE TYPE="text/css">
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+</STYLE>
+##### **Secretaria de Saúde da Bahia** #####
+##### **Superintendência de Estudos Econômicos e Sociais da Bahia** #####
+##### **Governo da Bahia** #####
+```{r echo=FALSE, setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+options(knitr.kable.NA = '')
+
+# PREPARAR LIBRARIES + ABRIR OS BANCOS
+#library(tidyquant)
+library(lubridate)
+library(dplyr)
+library(tidyverse)
+library(RColorBrewer)
+library(ggplot2)
+library(tidyr) 
+library(scales)
+library(ggthemes) 
+library(magrittr)
+library(ggiraph)
+
+# Definindo datas importantes
+
+data_boletim <- as_date("2020-07-21")
+data_lim <- data_boletim - 3
+
+#LER OS BANCOS E AJUSTAR DATAS
+source("./R/ETL_microdados.R")
+
+# funcao que gera grafico de serie historica por NRS
+
+graf_casos_NRS <- function(macrorregiao){
+  df_serie <- serie_casos_NRS %>% filter(NRS==macrorregiao)
+  ggplot() +
+    geom_col(
+      data=df_serie,
+      aes(
+        y=casos_novos,
+        x=DATA_REF
+      ),
+      fill = "#ffa600",
+      color = "#a16902"
+    )  +
+    scale_x_date(
+      limits=c(as_date("2020-03-06"), data_boletim)
+    ) +
+    geom_line_interactive(
+      data=df_serie,
+      aes(
+        y=mm_7d_direita,
+        x=DATA_REF
+      ),
+      linetype='solid',
+      size=1,
+      color = "#801313"
+    ) +
+    xlab("Data do início do sintoma") +
+    ylab("Casos confirmados") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+```
+
+##  **1 - Séries históricas do COVID-19 na Bahia**
+
+<br>
+<br>
+
+**Figura 1.** Casos novos de COVID-19, por data de início de sintoma (média móvel de 7 dias), Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# retirando a data NA
+serie_casos_BA %<>% filter(not(is.na(DATA_REF)))
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_1 <- 
+  ggplot() +
+  geom_col(
+    data=serie_casos_BA,
+    aes(
+      y=casos_novos,
+      x=DATA_REF
+    ),
+    fill = "#ffa600",
+    color = "#a16902"
+  )  +
+  scale_x_date(
+    limits=c(as_date("2020-03-06"), data_boletim)
+  ) +
+  geom_line_interactive(
+    data=serie_casos_BA,
+    aes(
+      y=mm_7d_direita,
+      x=DATA_REF
+    ),
+    linetype='solid',
+    size=1,
+    color = "#801313"
+  ) +
+  xlab("Data do início do sintoma") +
+  ylab("Casos confirmados") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+plot(graf_1)
+
+```
+
+**Figura 2.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_2 <- 
+ggplot() +
+  geom_col(
+    data=serie_obitos_BA,
+    aes(
+      y=obitos,
+      x=DATA_OBITO,
+      fill = "Obitos"
+    ),
+    color = "#b30000",
+    fill = "#ff8080"
+  )  +
+  scale_x_date(
+    limits=c(as_date("2020-03-06"), data_boletim)
+  ) +
+  geom_line_interactive(
+    data=serie_obitos_BA,
+    aes(
+      y=mm_7d_direita,
+      x=DATA_OBITO
+    ),
+    linetype='solid',
+    size=1,
+    color = "#400461"
+  ) +
+  xlab("Data do Óbito") +
+  ylab("Número de Óbitos") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(
+    name="",
+    values=c(
+      "Obitos" =  "#ff8080",
+      "Media" = "#400461"
+    ) 
+  ) +
+  scale_colour_manual(
+    name="",
+    values=c(
+      "Obitos" =  "#ff8080",
+      "Media" = "#400461"
+    ) 
+  )
+
+plot(graf_2)
+
+```
+
+##  **2 - Séries históricas do COVID-19 no Centro-leste da Bahia**
+
+**Figura 3.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Centro-leste da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Centro-leste")
+  
+```
+
+
+##  **3 - Séries históricas do COVID-19 no Centro-norte da Bahia**
+
+**Figura 5.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Centro-norte da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Centro-norte")
+  
+```
+
+
+##  **4 - Séries históricas do COVID-19 no Extremo sul da Bahia**
+
+**Figura 5.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Extremo sul da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Extremo sul")
+  
+```
+
+##  **5 - Séries históricas do COVID-19 no Leste da Bahia**
+
+**Figura 7.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Leste da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Leste")
+  
+```
+
+##  **6 - Séries históricas do COVID-19 no Nordeste da Bahia**
+
+**Figura 9.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Nordeste da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Nordeste")
+  
+```
+
+##  **7 - Séries históricas do COVID-19 no Norte da Bahia**
+
+**Figura 11.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Norte da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Norte")
+  
+```
+
+
+##  **8 - Séries históricas do COVID-19 no Oeste da Bahia**
+
+**Figura 13.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Oeste da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Oeste")
+  
+```
+
+##  **9 - Séries históricas do COVID-19 no Sudoeste da Bahia**
+
+**Figura 15.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Sudoeste da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Sudoeste")
+  
+```
+
+##  **10 - Séries históricas do COVID-19 no Sul da Bahia**
+
+**Figura 15.** Óbitos por COVID-19, por data do óbito (média móvel de 7 dias), Sul da Bahia, 2020. 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#GRAFICOS SERIE HISTORICA INTERNACOES / SAIDAS - MEDIA MOVEL 
+
+graf_casos_NRS(macrorregiao="Sul")
+  
+```
