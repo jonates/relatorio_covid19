@@ -300,7 +300,11 @@ plot(graf_3)
 
 <br>
 
-##  **2 - Séries históricas do COVID-19 no Centro-leste da Bahia**
+##  **2 - Séries históricas do COVID-19 por macrorregiões da Bahia**
+
+<br>
+
+###  **2.1 - Séries históricas do COVID-19 no Centro-leste da Bahia**
 
 <br>
 
@@ -326,7 +330,7 @@ graf_obitos_semepi_NRS(macrorregiao="Centro-leste")
 
 <br>
 
-##  **3 - Séries históricas do COVID-19 no Centro-norte da Bahia**
+###  **2.2 - Séries históricas do COVID-19 no Centro-norte da Bahia**
 
 <br>
 
@@ -352,7 +356,7 @@ graf_obitos_semepi_NRS(macrorregiao="Centro-norte")
 
 <br>
 
-##  **4 - Séries históricas do COVID-19 no Extremo sul da Bahia**
+###  **2.3 - Séries históricas do COVID-19 no Extremo sul da Bahia**
 
 <br>
 
@@ -378,7 +382,7 @@ graf_obitos_semepi_NRS(macrorregiao="Extremo sul")
 
 <br>
 
-##  **5 - Séries históricas do COVID-19 no Leste da Bahia**
+###  **2.4 - Séries históricas do COVID-19 no Leste da Bahia**
 
 **Figura 10.** Casos novos de COVID-19, por data de início de sintoma (e média móvel de 7 dias), Leste da Bahia, 2020. 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -402,7 +406,7 @@ graf_obitos_semepi_NRS(macrorregiao="Leste")
 
 <br>
 
-##  **6 - Séries históricas do COVID-19 no Nordeste da Bahia**
+###  **2.5 - Séries históricas do COVID-19 no Nordeste da Bahia**
 
 <br>
 
@@ -428,7 +432,7 @@ graf_obitos_semepi_NRS(macrorregiao="Nordeste")
 
 <br>
 
-##  **7 - Séries históricas do COVID-19 no Norte da Bahia**
+###  **2.6 - Séries históricas do COVID-19 no Norte da Bahia**
 
 <br>
 
@@ -454,7 +458,7 @@ graf_obitos_semepi_NRS(macrorregiao="Norte")
 
 <br>
 
-##  **8 - Séries históricas do COVID-19 no Oeste da Bahia**
+###  **2.7 - Séries históricas do COVID-19 no Oeste da Bahia**
 
 <br>
 
@@ -480,7 +484,7 @@ graf_obitos_semepi_NRS(macrorregiao="Oeste")
 
 <br>
 
-##  **9 - Séries históricas do COVID-19 no Sudoeste da Bahia**
+###  **2.8 - Séries históricas do COVID-19 no Sudoeste da Bahia**
 
 <br>
 
@@ -506,7 +510,7 @@ graf_obitos_semepi_NRS(macrorregiao="Sudoeste")
 
 <br>
 
-##  **10 - Séries históricas do COVID-19 no Sul da Bahia**
+###  **2.9 - Séries históricas do COVID-19 no Sul da Bahia**
 
 <br>
 
