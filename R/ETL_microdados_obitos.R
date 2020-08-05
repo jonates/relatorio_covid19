@@ -5,18 +5,21 @@
 #####   DATA DA CRIAÇÃO:  20/07/2020
 #####   ESCRITO POR:      Jonatas Silva
 #####   COOPERACAO:       Cleiton Rocha 
-#####   SITE:             ""
+#####   SITE:             "https://github.com/jonates"
 #####   LICENÇA:          GPLv3
-#####   PROJETO:          https://github.com/jonates/relatorio_covid19
+#####   PROJETO:          https://github.com/jonates/report_covid19_BA
 
 
 library(dplyr)
 library(lubridate)
 library(stringr)
 library(tidyselect)
+library(tidyverse)
+library(readr)
 library(magrittr)
 library(readxl)
 library(data.table)
+library(epitools)
 
 #------------------------------------------------------------------------------
 # Microdados de obitos
@@ -27,7 +30,7 @@ library(data.table)
 ########### Leitura dos microdados 
 
 SBIObitos <- read.csv2(
-  file = "./data/exporta_obitos_individualizados_csv.csv",
+  file = "./data/input/exporta_obitos_individualizados_csv.csv",
   header = T , 
   fileEncoding = "UTF-8", 
   na.strings = "NA"
@@ -36,12 +39,12 @@ SBIObitos <- read.csv2(
 ########### carregando dados com geoinformacao dos municipios
 codigos_IBGE <- 
   read.csv2(
-    file = "./data/codigos_IBGE_municipios.csv", 
+    file = "./data/input/codigos_IBGE_municipios.csv", 
     encoding = "ISO-8859-1"
   )
 
 geoinfo_BA <- read.csv2(
-  file = "./data/geoinformacao_municipios_BA.csv", 
+  file = "./data/input/geoinformacao_municipios_BA.csv", 
   encoding = "ISO-8859-1"
 ) %>%
   select(CD_GEOCMU, CD_GEOCMU6DIG, NM_MUNICIP2, NRS, NM_RS,LONG, LAT, POP_MUN)
@@ -73,6 +76,9 @@ serie_obitos_BA <- SBIObitos %>%
   mutate(
     mm_7d = frollmean(obitos , n=7, align = "right") %>% as.numeric(),
   )
+
+#Inserindo NA na media moveis do registro sem data na serie da Bahia   
+serie_obitos_BA[is.na(serie_obitos_BA$DATA_OBITO),"mm_7d"] <- NA
 
 #####################################################
 # Montando serie historica de obitos por municipios
@@ -164,6 +170,9 @@ serie_obitos_city %<>%
     mm_7d = frollmean(obitos , n=7, align = "right") %>% as.numeric(),
   )
 
+#Inserindo NA na media moveis do registro sem data na serie da Bahia   
+serie_obitos_city[is.na(serie_obitos_city$DATA_OBITO),"mm_7d"] <- NA
+
 #####################################################
 # Montando serie historica de obitos por macrorregiao
 #####################################################
@@ -177,14 +186,41 @@ serie_obitos_NRS <- serie_obitos_city %>%
     mm_7d = frollmean(obitos , n=7, align = "right") %>% as.numeric(),
   )
 
+#Inserindo NA na media moveis do registro sem data na serie da Bahia   
+serie_obitos_NRS[is.na(serie_obitos_NRS$DATA_OBITO),"mm_7d"] <- NA
+
+###################################################################
+# serie por semana epidemiologica
+###################################################################
+
+# serie de obitos por semana epidemiologia - Bahia
+serie_obitos_semepi_BA <- 
+  serie_obitos_NRS %>% 
+  mutate(
+    Semana_Epidemiologica = epitools::as.week(DATA_OBITO)$week
+  ) %>% 
+  group_by(Semana_Epidemiologica) %>% 
+  summarise(obitos=sum(obitos))
+
+# serie de obitos por semana epidemiologia - Macrorregiao
+serie_obitos_semepi_NRS <- 
+  serie_obitos_NRS %>% 
+  mutate(
+    Semana_Epidemiologica = epitools::as.week(DATA_OBITO)$week
+  ) %>% 
+  group_by(Semana_Epidemiologica,NRS) %>% 
+  summarise(obitos=sum(obitos))
 
 # Load ------------------------------------------------------------------------
 
-#salvando série histórica de obitos da Bahia
-write.csv2(serie_obitos_BA,"./data/serie_obitos_BA.csv", row.names = F)
-
-#salvando série histórica de obitos da Bahia
-write.csv2(serie_obitos_city,"./data/serie_obitos_city.csv", row.names = F)
-
-#salvando série histórica de obitos da NRS
-write.csv2(serie_obitos_NRS,"./data/serie_obitos_NRS.csv", row.names = F)
+# #salvando série histórica de obitos da Bahia
+# write.csv2(serie_obitos_BA,"./data/output/serie_obitos_BA.csv", row.names = F)
+# 
+# #salvando série histórica de obitos da Bahia
+# write.csv2(serie_obitos_city,"./data/output/serie_obitos_city.csv", row.names = F)
+# 
+# #salvando série histórica de obitos da NRS
+# write.csv2(serie_obitos_NRS,"./data/output/serie_obitos_NRS.csv", row.names = F)
+# 
+# #salvando série histórica de obitos da NRS por semana epidemiologica
+# write.csv2(serie_obitos_semepi_NRS,"./data/output/serie_obitos_semepi_NRS.csv", row.names = F)

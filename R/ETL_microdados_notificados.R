@@ -3,19 +3,23 @@
 ################################################################################################### 
 #####   DESCRIÇÃO:        ETL microdados covid-19 da BAHIA. Fonte: SESAB
 #####   DATA DA CRIAÇÃO:  20/07/2020
-#####   ESCRITO POR:      Jonatas Silva, Cleiton Rocha
-#####   SITE:             ""
+#####   ESCRITO POR:      Jonatas Silva
+#####   COOPERACAO:       Cleiton Rocha 
+#####   SITE:             "https://github.com/jonates"
 #####   LICENÇA:          GPLv3
-#####   PROJETO:          https://github.com/jonates/relatorio_covid19
+#####   PROJETO:          https://github.com/jonates/report_covid19_BA
 
 
 library(dplyr)
 library(lubridate)
 library(stringr)
 library(tidyselect)
+library(tidyverse)
+library(readr)
 library(magrittr)
 library(readxl)
 library(data.table)
+library(epitools)
 
 #------------------------------------------------------------------------------
 # Microdados de notificcao
@@ -24,17 +28,20 @@ library(data.table)
 # Import ----------------------------------------------------------------------
 
 ########### Leitura dos microdados 
-md_cases <- read_xlsx("./data/Banco_estadual_COVID-19_24-07-2020.xlsx", sheet = 1)
+#md_cases <- read_xlsx("./data/input/Banco_estadual_COVID-19_26-07-2020.xlsx", sheet = 1)
+#md_cases <- read.csv2("./data/input/Banco_estadual_COVID-19_26-07-2020.csv")
+md_cases <- read_csv2("./data/input/Banco_Estadual_COVID-19_04-08-2020.csv")
+
 
 ########### carregando dados com geoinformacao dos municipios
 codigos_IBGE <- 
   read.csv2(
-    file = "./data/codigos_IBGE_municipios.csv", 
+    file = "./data/input/codigos_IBGE_municipios.csv", 
     encoding = "ISO-8859-1"
   )
 
 geoinfo_BA <- read.csv2(
-  file = "./data/geoinformacao_municipios_BA.csv", 
+  file = "./data/input/geoinformacao_municipios_BA.csv", 
   encoding = "ISO-8859-1"
 ) %>%
   select(CD_GEOCMU, NM_MUNICIP2, NRS, NM_RS,LONG, LAT, POP_MUN)
@@ -631,14 +638,14 @@ serie_casos_BA <-
     summarise(casos_novos = n()) %>% 
     as.data.frame() %>% 
     mutate(
-      mm_7d_direita = frollmean(casos_novos , n=7, align = "right") %>% as.numeric(),
-      mm_7d_centro = frollmean(casos_novos , n=7, align = "center") %>% as.numeric(),
+      mm_7d = frollmean(casos_novos , n=7, align = "right") %>% as.numeric(),
+      #mm_7d_centro = frollmean(casos_novos , n=7, align = "center") %>% as.numeric(),
       diagnostico = "COVID-19"
     )  
 
 #Inserindo NA na media moveis do registro sem data na serie da Bahia   
-serie_casos_BA[is.na(serie_casos_BA$DATA_REF),"mm_7d_direita"] <- NA
-serie_casos_BA[is.na(serie_casos_BA$DATA_REF),"mm_7d_centro"] <- NA
+serie_casos_BA[is.na(serie_casos_BA$DATA_REF),"mm_7d"] <- NA
+#serie_casos_BA[is.na(serie_casos_BA$DATA_REF),"mm_7d_centro"] <- NA
 
 
 #Gerando série historica dos confirmados por NRS
@@ -648,27 +655,28 @@ serie_casos_NRS <-
   summarise(casos_novos = n()) %>% 
   as.data.frame() %>% 
   mutate(
-    mm_7d_direita = frollmean(casos_novos , n=7, align = "right") %>% as.numeric(),
-    mm_7d_centro = frollmean(casos_novos , n=7, align = "center") %>% as.numeric(),
+    mm_7d = frollmean(casos_novos , n=7, align = "right") %>% as.numeric(),
+    #mm_7d_centro = frollmean(casos_novos , n=7, align = "center") %>% as.numeric(),
     diagnostico = "COVID-19"
   )  
 
 #Inserindo NA na media moveis do registro sem data   
-serie_casos_NRS[is.na(serie_casos_NRS$DATA_REF),"mm_7d_direita"] <- NA
-serie_casos_NRS[is.na(serie_casos_NRS$DATA_REF),"mm_7d_centro"] <- NA
+serie_casos_NRS[is.na(serie_casos_NRS$DATA_REF),"mm_7d"] <- NA
+#serie_casos_NRS[is.na(serie_casos_NRS$DATA_REF),"mm_7d_centro"] <- NA
 
 # Load ------------------------------------------------------------------------
 
-#salvando microdados
-md_cases_total %>% 
-select(
-  - NM_MUNICIP2,
-  `DATA DA NOTIFICACAO`,
-  `DATA DO INICIO DOS SINTOMAS`,
-  `DATA DA COLETA DO TESTE`,
-  everything()
-) %>% 
-write.csv2("./data/microdados_covid19_BA.csv", row.names = F)
+# #salvando microdados
+# md_cases_total %>% 
+# select(
+#   - NM_MUNICIP2,
+#   `DATA DA NOTIFICACAO`,
+#   `DATA DO INICIO DOS SINTOMAS`,
+#   `DATA DA COLETA DO TESTE`,
+#   everything()
+# ) %>% 
+# write.csv2("./data/output/microdados_notificados_covid19_BA.csv", row.names = F)
 
-#salvando série histórica
-write.csv2(serie_casos_BA,"./data/serie_casos_confirmados_microdados_BA.csv", row.names = F)
+##salvando série histórica
+#write.csv2(serie_casos_BA,"./data/output/serie_casos_confirmados_BA.csv", row.names = F)
+
